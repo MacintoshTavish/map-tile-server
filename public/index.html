@@ -261,16 +261,16 @@
 
         <div class="info-section">
             <div class="info-row">
-                <span class="info-label">Tiles Available:</span>
-                <span class="info-value">17 tiles</span>
+                <span class="info-label">Tile Source:</span>
+                <span class="info-value">Proxy + Cache</span>
             </div>
             <div class="info-row">
                 <span class="info-label">Zoom Levels:</span>
-                <span class="info-value">0 - 4</span>
+                <span class="info-value">0 - 18</span>
             </div>
             <div class="info-row">
-                <span class="info-label">Coverage:</span>
-                <span class="info-value">NW Quadrant</span>
+                <span class="info-label">Cache Size:</span>
+                <span class="info-value">500 MB</span>
             </div>
         </div>
 
@@ -278,9 +278,22 @@
 
         <div class="info-section">
             <div class="info-row">
-                <span class="info-label">Cache:</span>
-                <span class="info-value">30 days</span>
+                <span class="info-label">Browser Cache:</span>
+                <span class="info-value">3 days</span>
             </div>
+            <div class="info-row">
+                <span class="info-label">Proxy Cache:</span>
+                <span class="info-value">8 days</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Inactive:</span>
+                <span class="info-value">7 days</span>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="info-section">
             <div class="info-row">
                 <span class="info-label">Rate Limit:</span>
                 <span class="info-value">10 req/s</span>
@@ -292,7 +305,7 @@
         </div>
 
         <div class="note">
-            Tiles served from <code>/tiles/{z}/{x}/{y}.png</code> by nginx with aggressive caching and rate limiting protection.
+            Tiles fetched on-demand from OpenStreetMap and cached by nginx. Check X-Cache-Status header for HIT/MISS.
         </div>
     </div>
 
@@ -304,21 +317,21 @@
         const map = L.map('map', {
             center: [0, 0],
             zoom: 1,
-            maxZoom: 4,  // Updated to 4 since we now have zoom 0-4 tiles
+            maxZoom: 18,  // Full zoom range with tile proxy
             minZoom: 0
         });
 
         // Add custom tile layer from our nginx server
         L.tileLayer('http://map.localhost:3000/tiles/{z}/{x}/{y}.png', {
             attribution: 'Tiles served by nginx | Map data &copy; OpenStreetMap',
-            maxZoom: 4,
+            maxZoom: 18,
             tileSize: 256,
             errorTileUrl: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=='
         }).addTo(map);
 
         // Add a marker at center with popup
         L.marker([0, 0]).addTo(map)
-            .bindPopup('<b>Hello!</b><br>Your nginx tile server is working!<br><small>Zoom levels 0-4 available</small>')
+            .bindPopup('<b>Hello!</b><br>Your nginx tile server is working!<br><small>Zoom levels 0-18 via proxy</small>')
             .openPopup();
 
         // Update zoom level indicator
@@ -344,10 +357,10 @@
         map.on('moveend', updateCoordinates);
 
         // Log tile requests to console
-        console.log('Map initialized');
+        console.log('Map initialized with tile proxy');
         console.log('Tile URL template: http://map.localhost:3000/tiles/{z}/{x}/{y}.png');
-        console.log('Watch the Network tab to see nginx serving tiles!');
-        console.log('Zoom levels 0-4 available with rate limiting enabled');
+        console.log('Watch the Network tab to see cache HIT/MISS in X-Cache-Status header');
+        console.log('Zoom levels 0-18 available via OpenStreetMap proxy');
 
         // Log when tiles are loaded
         map.on('tileload', function(e) {

@@ -34,3 +34,6 @@ yarn-error.log*
 *.swp
 *.swo
 *~
+
+# Nginx cache directory
+cache/
